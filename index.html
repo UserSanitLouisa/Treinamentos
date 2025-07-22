@@ -1,1 +1,1049 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Prática Interativa - Documentos Institucionais</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+        
+        .timer {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .admin-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 5px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .admin-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 2px;
+            font-size: 0.9em;
+        }
+        
+        .admin-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .phase {
+            display: none;
+            animation: slideIn 0.5s ease-in-out;
+        }
+        
+        .phase.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .scenario-card {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #ff6b6b;
+        }
+        
+        .scenario-card h3 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .option {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .option:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        .option.selected {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .feedback.show {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            height: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .construction-area {
+            background: #f8f9fa;
+            border: 2px dashed #6c757d;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+        }
+        
+        .editable {
+            background: white;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px 0;
+            min-height: 30px;
+            cursor: text;
+        }
+        
+        .editable:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 5px rgba(79, 172, 254, 0.3);
+        }
+        
+        .structure-guide {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .error-highlight {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        
+        .analytics-summary {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="admin-panel">
+                <button class="admin-btn" onclick="exportCSV()">📊 Exportar CSV</button>
+                <button class="admin-btn" onclick="exportExcel()">📈 Exportar Excel</button>
+                <button class="admin-btn" onclick="viewAnalytics()">🔍 Ver Dados</button>
+            </div>
+            <h1>🎯 Prática Interativa</h1>
+            <h2>Elaboração de Documentos Institucionais</h2>
+            <div class="timer" id="timer">⏱️ 00:00</div>
+        </div>
 
+        <div class="content">
+            <div class="phase active" id="identification">
+                <h2>🧾 Identificação do Participante</h2>
+                <p>Antes de iniciar, informe seus dados para registro da participação:</p>
+                <div class="structure-guide">
+                    <label><strong>Nome completo:</strong></label><br/>
+                    <input id="nome" style="width:100%;padding:10px;margin-bottom:15px;border-radius:5px;border:1px solid #ccc;" type="text"/><br/>
+                    <label><strong>Setor:</strong></label><br/>
+                    <input id="setor" style="width:100%;padding:10px;margin-bottom:15px;border-radius:5px;border:1px solid #ccc;" type="text"/><br/>
+                    <button class="btn" onclick="startPractice()">Iniciar Prática</button>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="phase" id="phase1">
+                <h2>🔍 Fase 1: Identificando o Tipo Correto de Documento (5 min)</h2>
+                
+                <div class="scenario-card">
+                    <h3>Cenário 1</h3>
+                    <p><strong>Situação:</strong> A enfermeira chefe precisa padronizar como a equipe deve realizar a coleta de sangue para exames laboratoriais.</p>
+                    <p><strong>Pergunta:</strong> Qual tipo de documento deve ser elaborado?</p>
+                </div>
+                
+                <div class="options" data-scenario="1">
+                    <div class="option" onclick="selectOption(this, false, 1, 'Protocolo')">
+                        <h4>📋 Protocolo</h4>
+                        <p>Para estabelecer diretrizes clínicas gerais</p>
+                    </div>
+                    <div class="option" onclick="selectOption(this, true, 1, 'POP')">
+                        <h4>📝 POP (Procedimento Operacional Padrão)</h4>
+                        <p>Para padronizar atividades e processos específicos</p>
+                    </div>
+                    <div class="option" onclick="selectOption(this, false, 1, 'Manual')">
+                        <h4>📑 Manual Institucional</h4>
+                        <p>Para orientações amplas sobre múltiplas funções</p>
+                    </div>
+                </div>
+                <div class="feedback" id="feedback1"></div>
+
+                <div class="scenario-card">
+                    <h3>Cenário 2</h3>
+                    <p><strong>Situação:</strong> O setor de TI quer documentar como proceder em caso de falha grave no sistema.</p>
+                    <p><strong>Pergunta:</strong> Qual tipo de documento é ideal para isso?</p>
+                </div>
+                <div class="options" data-scenario="2">
+                    <div class="option" onclick="selectOption(this, false, 2, 'Protocolo')">
+                        <h4>📋 Protocolo</h4>
+                        <p>Para diretrizes clínicas, não para riscos técnicos</p>
+                    </div>
+                    <div class="option" onclick="selectOption(this, true, 2, 'Plano de Contingência')">
+                        <h4>📄 Plano de Contingência</h4>
+                        <p>Para reagir a eventos inesperados e críticos</p>
+                    </div>
+                    <div class="option" onclick="selectOption(this, false, 2, 'POP')">
+                        <h4>📝 POP</h4>
+                        <p>Foca em atividades rotineiras, não emergenciais</p>
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <h3>Cenário 3</h3>
+                    <p><strong>Situação:</strong> A instituição quer formalizar diretrizes sobre o uso de celular nas áreas assistenciais.</p>
+                    <p><strong>Pergunta:</strong> Qual tipo de documento deve ser criado?</p>
+                </div>
+                <div class="options" data-scenario="3">
+                    <div class="option" onclick="selectOption(this, true, 3, 'Norma Institucional')">
+                        <h4>⚖️ Norma Institucional</h4>
+                        <p>Regra obrigatória de conduta e comportamento</p>
+                    </div>
+                    <div class="option" onclick="selectOption(this, false, 3, 'POP')">
+                        <h4>📝 POP</h4>
+                        <p>Procedimento específico, não conduta ampla</p>
+                    </div>
+                    <div class="option" onclick="selectOption(this, false, 3, 'TCLE')">
+                        <h4>📄 TCLE</h4>
+                        <p>Documento legal para consentimento do paciente</p>
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <h3>Cenário 4</h3>
+                    <p><strong>Situação:</strong> O RH precisa descrever o que um cargo exige em termos de formação, habilidades e tarefas.</p>
+                    <p><strong>Pergunta:</strong> Qual documento deve ser utilizado?</p>
+                </div>
+                <div class="options" data-scenario="4">
+                    <div class="option" onclick="selectOption(this, false, 4, 'Política Institucional')">
+                        <h4>📄 Política Institucional</h4>
+                        <p>Diretrizes gerais, não descrição de função</p>
+                    </div>
+                    <div class="option" onclick="selectOption(this, false, 4, 'Manual')">
+                        <h4>📘 Manual</h4>
+                        <p>Conjunto de procedimentos e orientações gerais</p>
+                    </div>
+                    <div class="option" onclick="selectOption(this, true, 4, 'Perfil e Descrição de Cargo')">
+                        <h4>👤 Perfil e Descrição de Cargo</h4>
+                        <p>Define atribuições e requisitos do cargo</p>
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <h3>Cenário 5</h3>
+                    <p><strong>Situação:</strong> O setor de segurança do paciente quer formalizar que todos os acompanhantes têm direito de permanecer com o paciente sedado.</p>
+                    <p><strong>Pergunta:</strong> Onde essa informação deve estar registrada?</p>
+                </div>
+                <div class="options" data-scenario="5">
+                    <div class="option" onclick="selectOption(this, false, 5, 'POP')">
+                        <h4>📝 POP</h4>
+                        <p>Instrui o "como fazer", não consentimento legal</p>
+                    </div>
+                    <div class="option" onclick="selectOption(this, true, 5, 'TCLE')">
+                        <h4>📄 TCLE</h4>
+                        <p>Formaliza o consentimento e os direitos do paciente</p>
+                    </div>
+                    <div class="option" onclick="selectOption(this, false, 5, 'Regimento Interno')">
+                        <h4>📘 Regimento Interno</h4>
+                        <p>Regras de funcionamento de comissões</p>
+                    </div>
+                </div>
+
+                <button class="btn" id="nextBtn1" onclick="nextPhase(2)" style="display:none;">Próxima Fase</button>
+            </div>
+
+            <div class="phase" id="phase2">
+                <h2>🛠️ Fase 2: Construindo um POP (7 min)</h2>
+                <div class="scenario-card">
+                    <h3>Tarefa Prática</h3>
+                    <p>Vamos construir juntos um POP para <strong>"Verificação de Sinais Vitais"</strong>. Complete os campos abaixo:</p>
+                </div>
+                <div class="construction-area">
+                    <h4>1. Conceito</h4>
+                    <div class="editable" contenteditable="true" id="conceito" placeholder="Defina o que é a verificação de sinais vitais..."></div>
+                    <h4>2. Executante</h4>
+                    <div class="editable" contenteditable="true" id="executante" placeholder="Quem pode executar este procedimento?"></div>
+                    <h4>3. Local</h4>
+                    <div class="editable" contenteditable="true" id="local" placeholder="Onde deve ser realizado?"></div>
+                    <h4>4. Condições e Materiais</h4>
+                    <div class="editable" contenteditable="true" id="materiais" placeholder="Liste os materiais necessários..."></div>
+                    <h4>5. Procedimento Detalhado (primeiros 3 passos)</h4>
+                    <div class="editable" contenteditable="true" id="procedimento" placeholder="1. Higienizar as mãos...
+2. ...
+3. ..."></div>
+                </div>
+                <button class="btn" onclick="checkConstruction()">Verificar Construção</button>
+                <button class="btn" id="nextPhase2" onclick="nextPhase(3)" style="display:none;">Próxima Fase</button>
+            </div>
+
+            <div class="phase" id="phase3">
+                <h2>🔍 Fase 3: Identificando Erros Comuns (3 min)</h2>
+                <div class="scenario-card">
+                    <h3>Análise de Documento</h3>
+                    <p>Analise o trecho de POP abaixo e identifique os problemas:</p>
+                </div>
+                <div class="error-highlight">
+                    <h4>POP: Administração de Medicamento</h4>
+                    <p><strong>Procedimento:</strong></p>
+                    <p>1. Pegue o remédio</p>
+                    <p>2. Dê para o paciente</p>
+                    <p>3. Veja se ele tomou</p>
+                    <p>4. Anote no prontuário</p>
+                </div>
+                <div class="options" data-scenario="6">
+                    <div class="option" onclick="selectError(this, true, 'Linguagem informal')">
+                        <h4>❌ Linguagem muito informal</h4>
+                        <p>"Pegue", "Dê", "Veja" - usar verbos no infinitivo</p>
+                    </div>
+                    <div class="option" onclick="selectError(this, true, 'Falta detalhamento')">
+                        <h4>❌ Falta de detalhamento</h4>
+                        <p>Não especifica dosagem, via, verificações de segurança</p>
+                    </div>
+                    <div class="option" onclick="selectError(this, true, 'Ausência verificações')">
+                        <h4>❌ Ausência de verificações de segurança</h4>
+                        <p>Não menciona conferência de dados do paciente</p>
+                    </div>
+                    <div class="option" onclick="selectError(this, false, 'Sequência correta')">
+                        <h4>✅ Sequência lógica adequada</h4>
+                        <p>A ordem das ações está correta</p>
+                    </div>
+                </div>
+                <div class="feedback" id="feedback3"></div>
+                <button class="btn" id="showResultsBtn" onclick="showResults()" style="display:none;">Ver Resultados</button>
+            </div>
+
+            <div class="phase" id="results">
+                <h2>🎉 Resultados da Prática</h2>
+                <div class="score" id="finalScore"></div>
+                <div class="analytics-summary" id="analyticsPanel" style="display:none;">
+                    <h3>📊 Resumo de Desempenho</h3>
+                    <div class="stats-grid" id="statsGrid"></div>
+                </div>
+                <div class="scenario-card">
+                    <h3>📋 Pontos-Chave Revisados</h3>
+                    <ul>
+                        <li><strong>POP</strong> padroniza processos específicos com estrutura obrigatória</li>
+                        <li><strong>Protocolo</strong> estabelece diretrizes clínicas e assistenciais</li>
+                        <li><strong>Linguagem</strong> deve ser clara, objetiva, com verbos no infinitivo</li>
+                        <li><strong>Detalhamento</strong> é essencial para evitar ambiguidades</li>
+                    </ul>
+                </div>
+                <button class="btn" onclick="restartPractice()">🔄 Reiniciar Prática</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Sistema de Analytics
+        let userData = {
+            nome: '',
+            setor: '',
+            inicioTreinamento: null,
+            fimTreinamento: null,
+            tempoTotal: 0,
+            respostas: [],
+            construcaoPOP: {},
+            score: 0,
+            tentativas: 0,
+            sessaoId: generateSessionId()
+        };
+        let timer;
+        let startTime;
+        let currentPhase = 1;
+        let totalQuestions = 0;
+        let correctAnswers = 0;
+
+        function generateSessionId() {
+            return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function startTimer() {
+            startTime = Date.now();
+            timer = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const elapsed = Date.now() - startTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            document.getElementById('timer').textContent = `⏱️ ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function stopTimer() {
+            clearInterval(timer);
+            userData.tempoTotal = Date.now() - startTime;
+        }
+
+        function startPractice() {
+            const nome = document.getElementById('nome').value.trim();
+            const setor = document.getElementById('setor').value.trim();
+
+            if (!nome || !setor) {
+                alert("Por favor, preencha todos os campos.");
+                return;
+            }
+
+            userData.nome = nome;
+            userData.setor = setor;
+            userData.inicioTreinamento = new Date();
+            
+            // Salvar no histórico
+            saveToHistory();
+            document.getElementById('identification').classList.remove('active');
+            document.getElementById('phase1').classList.add('active');
+            
+            startTimer();
+            updateProgress();
+        }
+
+        function selectOption(element, isCorrect, scenario, resposta) {
+            // Limpar seleções anteriores
+            const options = element.parentElement.querySelectorAll('.option');
+            options.forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+            });
+            // Marcar seleção
+            element.classList.add('selected');
+            element.classList.add(isCorrect ? 'correct' : 'incorrect');
+            // Registrar resposta
+            userData.respostas.push({
+                cenario: scenario,
+                resposta: resposta,
+                correto: isCorrect,
+                timestamp: new Date(),
+                tempo: Date.now() - startTime
+            });
+
+            totalQuestions++;
+            if (isCorrect) correctAnswers++;
+            // Verificar se todas as perguntas foram respondidas
+            setTimeout(() => {
+                if (userData.respostas.length >= 5) {
+                    document.getElementById('nextBtn1').style.display = 'block';
+                }
+            }, 1000);
+        }
+
+        function selectError(element, isCorrect, erro) {
+            element.classList.add('selected');
+            element.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+            userData.respostas.push({
+                cenario: 6,
+                resposta: erro,
+                correto: isCorrect,
+                timestamp: new Date(),
+                tempo: Date.now() - startTime
+            });
+
+            totalQuestions++;
+            if (isCorrect) correctAnswers++;
+            // Mostrar botão após última resposta
+            setTimeout(() => {
+                document.getElementById('showResultsBtn').style.display = 'block';
+            }, 1000);
+        }
+
+        function checkConstruction() {
+            const conceito = document.getElementById('conceito').textContent.trim();
+            const executante = document.getElementById('executante').textContent.trim();
+            const local = document.getElementById('local').textContent.trim();
+            const materiais = document.getElementById('materiais').textContent.trim();
+            const procedimento = document.getElementById('procedimento').textContent.trim();
+            userData.construcaoPOP = {
+                conceito: conceito,
+                executante: executante,
+                local: local,
+                materiais: materiais,
+                procedimento: procedimento,
+                timestamp: new Date(),
+                tempo: Date.now() - startTime
+            };
+            // Avaliação simples da construção
+            let pontuacao = 0;
+            if (conceito.length > 20) pontuacao += 20;
+            if (executante.length > 10) pontuacao += 20;
+            if (local.length > 10) pontuacao += 20;
+            if (materiais.length > 20) pontuacao += 20;
+            if (procedimento.length > 50) pontuacao += 20;
+
+            userData.construcaoPOP.pontuacao = pontuacao;
+            
+            alert(`Construção avaliada! Pontuação: ${pontuacao}/100`);
+            document.getElementById('nextPhase2').style.display = 'block';
+        }
+
+        function nextPhase(phase) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById(`phase${phase}`).classList.add('active');
+            currentPhase = phase;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = (currentPhase / 4) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showResults() {
+            stopTimer();
+            userData.fimTreinamento = new Date();
+            userData.score = Math.round((correctAnswers / totalQuestions) * 100);
+            
+            document.getElementById('finalScore').textContent = `Pontuação Final: ${userData.score}%`;
+            
+            nextPhase(4);
+            saveToHistory(); // Primeiro salva no localStorage
+
+            // === BLOC DE ENVIO PARA GOOGLE FORMS (MOVIDO AQUI) ===
+            const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScIt9Y-ptO5Ayw3wjxdTu_I_paI-ZMGCWlSfyyGKYOdD5T40w/formResponse';
+            const formData = new FormData();
+            const respostasStr = (userData.respostas || []).map(r => 
+                "Cenário " + r.cenario + ": " + r.resposta + " (" + (r.correto ? "✔" : "✘") + ")"
+            ).join("\\n");
+
+            formData.append('entry.1253229711', userData.nome);
+            formData.append('entry.315885056', userData.setor);
+            formData.append('entry.1185376213', userData.sessaoId);
+            formData.append('entry.668197131', userData.score);
+            formData.append('entry.1729093565', Math.round(userData.tempoTotal / 60000));
+            formData.append('entry.1600115042', userData.construcaoPOP?.pontuacao || 0);
+            formData.append('entry.1311906623', respostasStr);
+            formData.append('entry.450694665', userData.construcaoPOP?.procedimento || '');
+            
+            // Only send if there's actual user data to submit
+            if (userData.nome && userData.setor && userData.sessaoId) {
+                fetch(formUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                })
+                .then(() => console.log('Dados enviados para o Google Forms!')) // Opcional: para ver no console
+                .catch(error => console.error('Erro ao enviar para o Google Forms:', error)); // Opcional: para debug
+            }
+            // =======================================================
+        }
+
+        function restartPractice() {
+            location.reload();
+        }
+
+        // Sistema de armazenamento e exportação
+        function saveToHistory() {
+            let history = JSON.parse(localStorage.getItem('treinamento_history') || '[]');
+            history.push({...userData, timestamp: new Date()});
+            localStorage.setItem('treinamento_history', JSON.stringify(history));
+        }
+
+        function exportCSV() {
+            const history = JSON.parse(localStorage.getItem('treinamento_history') || '[]');
+            if (history.length === 0) {
+                alert('Nenhum dado para exportar!');
+                return;
+            }
+
+            let csv = 'Nome,Setor,Data,Tempo Total (min),Score,Respostas Corretas,Total Questões,Sessão ID\n';
+            history.forEach(session => {
+                const tempoMin = Math.round(session.tempoTotal / 60000);
+                const respostasCorretas = session.respostas.filter(r => r.correto).length;
+                const totalRespostas = session.respostas.length;
+                
+                csv += `"${session.nome}","${session.setor}","${new Date(session.inicioTreinamento).toLocaleDateString()}",${tempoMin},${session.score},${respostasCorretas},${totalRespostas},"${session.sessaoId}"\n`;
+            });
+
+            downloadFile(csv, 'treinamento_dados.csv', 'text/csv');
+        }
+
+        function exportExcel() {
+            const history = JSON.parse(localStorage.getItem('treinamento_history') || '[]');
+            if (history.length === 0) {
+                alert('Nenhum dados para exportar!');
+                return;
+            }
+
+            // Preparar dados para o Excel
+            const dadosGerais = history.map(session => ({
+                'Nome': session.nome,
+                'Setor': session.setor,
+                'Data Início': new Date(session.inicioTreinamento).toLocaleString(),
+                'Data Fim': session.fimTreinamento ? new Date(session.fimTreinamento).toLocaleString() : 'Incompleto',
+                'Tempo Total (min)': Math.round(session.tempoTotal / 60000),
+                'Score Final (%)': session.score || 0,
+                'Respostas Corretas': session.respostas.filter(r => r.correto).length,
+                'Total Questões': session.respostas.length,
+                'Taxa Acerto (%)': Math.round((session.respostas.filter(r => r.correto).length / session.respostas.length) * 100),
+                'Sessão ID': session.sessaoId,
+                'Pontuação POP': session.construcaoPOP?.pontuacao || 0
+            }));
+            // Dados detalhados das respostas
+            const respostasDetalhadas = [];
+            history.forEach(session => {
+                session.respostas.forEach(resposta => {
+                    respostasDetalhadas.push({
+                        'Nome': session.nome,
+                        'Setor': session.setor,
+                        'Sessão ID': session.sessaoId,
+                        'Cenário': resposta.cenario,
+                        'Resposta': resposta.resposta,
+                        'Correto': resposta.correto ? 'Sim' : 'Não',
+                        'Tempo Resposta (s)': Math.round(resposta.tempo / 1000),
+                        'Timestamp': new Date(resposta.timestamp).toLocaleString()
+                    });
+                });
+            });
+            // Análise de desempenho por cenário
+            const analiseDesempenho = [];
+            for (let i = 1; i <= 6; i++) {
+                const respostasCenario = respostasDetalhadas.filter(r => r.Cenário == i);
+                const acertos = respostasCenario.filter(r => r.Correto === 'Sim').length;
+                const total = respostasCenario.length;
+                analiseDesempenho.push({
+                    'Cenário': i,
+                    'Descrição': getCenarioDescription(i),
+                    'Total Respostas': total,
+                    'Acertos': acertos,
+                    'Taxa Acerto (%)': total > 0 ? Math.round((acertos / total) * 100) : 0,
+                    'Tempo Médio (s)': total > 0 ? Math.round(
+                        respostasCenario.reduce((sum, r) => sum + parseInt(r['Tempo Resposta (s)']), 0) / total
+                    ) : 0
+                });
+            }
+
+            // Criar workbook
+            const wb = XLSX.utils.book_new();
+            // Adicionar planilhas
+            const ws1 = XLSX.utils.json_to_sheet(dadosGerais);
+            const ws2 = XLSX.utils.json_to_sheet(respostasDetalhadas);
+            const ws3 = XLSX.utils.json_to_sheet(analiseDesempenho);
+            
+            XLSX.utils.book_append_sheet(wb, ws1, "Dados Gerais");
+            XLSX.utils.book_append_sheet(wb, ws2, "Respostas Detalhadas");
+            XLSX.utils.book_append_sheet(wb, ws3, "Análise por Cenário");
+            
+            // Salvar arquivo
+            XLSX.writeFile(wb, `treinamento_completo_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        function getCenarioDescription(cenario) {
+            const descricoes = {
+                1: 'Padronização coleta de sangue',
+                2: 'Falha grave no sistema TI',
+                3: 'Uso de celular áreas assistenciais',
+                4: 'Descrição de cargo RH',
+                5: 'Direito acompanhante paciente',
+                6: 'Identificação erros POP'
+            };
+            return descricoes[cenario] || 'Desconhecido';
+        }
+
+        function viewAnalytics() {
+            const history = JSON.parse(localStorage.getItem('treinamento_history') || '[]');
+            if (history.length === 0) {
+                alert('Nenhum dado disponível para análise!');
+                return;
+            }
+
+            // Calcular estatísticas
+            const totalSessoes = history.length;
+            const scoresMedio = history.reduce((sum, s) => sum + (s.score || 0), 0) / totalSessoes;
+            const tempoMedio = history.reduce((sum, s) => sum + (s.tempoTotal || 0), 0) / totalSessoes / 60000;
+            const taxaConclusao = history.filter(s => s.fimTreinamento).length / totalSessoes * 100;
+            // Mostrar estatísticas
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalSessoes}</div>
+                    <div>Total de Sessões</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Math.round(scoresMedio)}%</div>
+                    <div>Score Médio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Math.round(tempoMedio)}</div>
+                    <div>Tempo Médio (min)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Math.round(taxaConclusao)}%</div>
+                    <div>Taxa de Conclusão</div>
+                </div>
+            `;
+            document.getElementById('analyticsPanel').style.display = 'block';
+        }
+
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        // Função para limpar dados (útil para testes)
+        function clearAllData() {
+            if (confirm('Tem certeza que deseja limpar todos os dados? Esta ação não pode ser desfeita.')) {
+                localStorage.removeItem('treinamento_history');
+                alert('Dados limpos com sucesso!');
+                location.reload();
+            }
+        }
+
+        // Adicionar função de debug no console
+        console.log('Sistema de Analytics carregado. Use as funções:');
+        console.log('- exportCSV(): Exportar dados em CSV');
+        console.log('- exportExcel(): Exportar dados em Excel');
+        console.log('- viewAnalytics(): Ver estatísticas');
+        console.log('- clearAllData(): Limpar todos os dados');
+
+        // Auto-save periódico
+        setInterval(() => {
+            if (userData.nome && userData.respostas.length > 0) {
+                saveToHistory();
+            }
+        }, 30000); // Salva a cada 30 segundos
+
+        // Capturar eventos de saída da página
+        window.addEventListener('beforeunload', function() {
+            if (userData.nome && userData.respostas.length > 0) {
+                saveToHistory();
+            }
+        });
+        // Capturar interações nos campos editáveis
+        document.addEventListener('DOMContentLoaded', function() {
+            const editables = document.querySelectorAll('.editable');
+            editables.forEach(editable => {
+                editable.addEventListener('input', function() {
+                    // Salvar mudanças em tempo real
+                    userData.construcaoPOP = userData.construcaoPOP || {};
+                    userData.construcaoPOP[this.id] = this.textContent;
+                    userData.construcaoPOP.lastModified = new Date();
+                });
+            });
+
+            // Código abaixo foi MOVIDO para showResults()
+            // // Adicionar botão de relatório de engajamento
+            // const adminPanel = document.querySelector('.admin-panel');
+            // if (adminPanel) {
+            //     const engagementBtn = document.createElement('button');
+            //     engagementBtn.className = 'admin-btn';
+            //     engagementBtn.textContent = '📋 Relatório';
+            //     engagementBtn.onclick = exportEngagementReport;
+            //     adminPanel.appendChild(engagementBtn);
+            // }
+            // saveToHistory(); // Removido daqui, já chamado no showResults()
+
+            // // ENVIO PARA GOOGLE FORMS (REMOVIDO DAQUI)
+            // const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScIt9Y-ptO5Ayw3wjxdTu_I_paI-ZMGCWlSfyyGKYOdD5T40w/formResponse';
+            // const formData = new FormData();
+            // const respostasStr = (userData.respostas || []).map(r => 
+            //     "Cenário " + r.cenario + ": " + r.resposta + " (" + (r.correto ? "✔" : "✘") + ")"
+            // ).join("\\n");
+
+            // formData.append('entry.1253229711', userData.nome);
+            // formData.append('entry.315885056', userData.setor);
+            // formData.append('entry.1185376213', userData.sessaoId);
+            // formData.append('entry.668197131', userData.score);
+            // formData.append('entry.1729093565', Math.round(userData.tempoTotal / 60000));
+            // formData.append('entry.1600115042', userData.construcaoPOP?.pontuacao || 0);
+            // formData.append('entry.1311906623', respostasStr);
+            // formData.append('entry.450694665', userData.construcaoPOP?.procedimento || '');
+            
+            // // Only send if there's actual user data to submit
+            // if (userData.nome && userData.setor && userData.sessaoId) {
+            //     fetch(formUrl, {
+            //         method: 'POST',
+            //         mode: 'no-cors',
+            //         body: formData
+            //     });
+            // }
+        });
+
+        // Função para relatório de engajamento (permanece aqui)
+        function generateEngagementReport() {
+            const history = JSON.parse(localStorage.getItem('treinamento_history') || '[]');
+            const report = {
+                totalParticipantes: history.length,
+                participantesPorSetor: {},
+                mediaScore: 0,
+                mediaTempoMinutos: 0,
+                taxaAbandonoGeral: 0,
+                cenariosMaisDifíceis: [],
+                recomendacoes: []
+            };
+            if (history.length === 0) return report;
+
+            // Análise por setor
+            history.forEach(session => {
+                if (!report.participantesPorSetor[session.setor]) {
+                    report.participantesPorSetor[session.setor] = 0;
+                }
+                report.participantesPorSetor[session.setor]++;
+            });
+
+            // Cálculos gerais
+            const sessoesConcluidas = history.filter(s => s.fimTreinamento);
+            report.mediaScore = sessoesConcluidas.reduce((sum, s) => sum + (s.score || 0), 0) / sessoesConcluidas.length;
+            report.mediaTempoMinutos = sessoesConcluidas.reduce((sum, s) => sum + (s.tempoTotal || 0), 0) / sessoesConcluidas.length / 60000;
+            report.taxaAbandonoGeral = ((history.length - sessoesConcluidas.length) / history.length) * 100;
+
+            // Análise de dificuldade por cenário
+            const cenarioStats = {};
+            history.forEach(session => {
+                session.respostas.forEach(resposta => {
+                    if (!cenarioStats[resposta.cenario]) {
+                        cenarioStats[resposta.cenario] = { corretas: 0, total: 0 };
+                    }
+                    cenarioStats[resposta.cenario].total++;
+                    if (resposta.correto) {
+                        cenarioStats[resposta.cenario].corretas++;
+                    }
+                });
+            });
+
+            // Identificar cenários mais difíceis
+            Object.keys(cenarioStats).forEach(cenario => {
+                const stats = cenarioStats[cenario];
+                const taxa = (stats.corretas / stats.total) * 100;
+                if (taxa < 70) {
+                    report.cenariosMaisDifíceis.push({
+                        cenario: parseInt(cenario),
+                        descricao: getCenarioDescription(parseInt(cenario)),
+                        taxaAcerto: Math.round(taxa)
+                    });
+                }
+            });
+            // Gerar recomendações
+            if (report.mediaScore < 70) {
+                report.recomendacoes.push('Revisar conteúdo do treinamento - score médio baixo');
+            }
+            if (report.mediaTempoMinutos > 20) {
+                report.recomendacoes.push('Considerar reduzir complexidade - tempo médio alto');
+            }
+            if (report.taxaAbandonoGeral > 20) {
+                report.recomendacoes.push('Investigar causas de abandono - taxa alta');
+            }
+            if (report.cenariosMaisDifíceis.length > 2) {
+                report.recomendacoes.push('Reforçar explicações dos cenários mais difíceis');
+            }
+
+            return report;
+        }
+
+        // Exportar relatório de engajamento (permanece aqui)
+        function exportEngagementReport() {
+            const report = generateEngagementReport();
+            const reportData = [
+                ['RELATÓRIO DE ENGAJAMENTO DO TREINAMENTO', ''],
+                ['Data do Relatório', new Date().toLocaleDateString()],
+                ['', ''],
+                ['DADOS GERAIS', ''],
+                ['Total de Participantes', report.totalParticipantes],
+                ['Média de Score (%)', Math.round(report.mediaScore || 0)],
+                ['Tempo Médio (min)', Math.round(report.mediaTempoMinutos || 0)],
+                ['Taxa de Abandono (%)', Math.round(report.taxaAbandonoGeral || 0)],
+                ['', ''],
+                ['PARTICIPANTES POR SETOR', ''],
+                ...Object.entries(report.participantesPorSetor).map(([setor, count]) => [setor, count]),
+                ['', ''],
+                ['CENÁRIOS MAIS DIFÍCEIS', ''],
+                ['Cenário', 'Taxa de Acerto (%)'],
+                ...report.cenariosMaisDifíceis.map(c => [c.descricao, c.taxaAcerto]),
+                ['', ''],
+                ['RECOMENDAÇÕES', ''],
+                ...report.recomendacoes.map(rec => [rec, ''])
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(reportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Relatório de Engajamento");
+            XLSX.writeFile(wb, `relatorio_engajamento_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        // Adicionar botão de relatório de engajamento (restaurei este aqui, pois ele pertence ao DOMContentLoaded)
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminPanel = document.querySelector('.admin-panel');
+            if (adminPanel) {
+                const engagementBtn = document.createElement('button');
+                engagementBtn.className = 'admin-btn';
+                engagementBtn.textContent = '📋 Relatório';
+                engagementBtn.onclick = exportEngagementReport;
+                adminPanel.appendChild(engagementBtn);
+            }
+            // O saveToHistory() foi movido para showResults() ou é tratado pelos auto-saves.
+            // O código de envio para Google Forms também foi movido para showResults().
+        });
+    </script>
+</body>
+</html>
